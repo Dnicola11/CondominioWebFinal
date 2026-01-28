@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Condominio - Iniciar Sesion</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body>
+  <div class="login-page">
+    <form class="login-card js-login">
+      <img class="login-avatar" src="assets/img/avatar.svg" alt="Avatar" />
+      <div id="login-alert" class="alert"></div>
+      <input class="input" type="text" name="usuario" placeholder="Correo Electronico" />
+      <input class="input" type="password" name="password" placeholder="Contrasena" />
+      <div class="login-actions">
+        <button class="btn btn-primary" type="submit">Iniciar Sesion</button>
+        <button class="btn btn-success" type="button" data-open-modal="modalRegistro">Registrarse</button>
+      </div>
+      <a class="link-muted" href="#">No puedes acceder a tu cuenta?</a>
+    </form>
+  </div>
+
+  <div class="modal" id="modalRegistro">
+    <div class="modal-content">
+      <div class="modal-header">Registrarse</div>
+      <form class="js-register">
+        <div class="modal-body">
+          <div class="alert" id="register-alert"></div>
+          <div class="form-row">
+            <label>Usuario:</label>
+            <input class="input" type="text" name="usuario" placeholder="usuario" />
+          </div>
+          <div class="form-row">
+            <label>Email:</label>
+            <input class="input" type="email" name="email" placeholder="correo@dominio.com" />
+          </div>
+          <div class="form-row">
+            <label>Id Residente:</label>
+            <input class="input" type="text" name="IdResidente" placeholder="Opcional" />
+          </div>
+          <div class="form-row">
+            <label>Contrasena:</label>
+            <input class="input" type="password" name="password" placeholder="********" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" type="button" data-close-modal>Cancelar</button>
+          <button class="btn btn-primary" type="submit">Crear cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

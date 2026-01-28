@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Condominio - Directorio de Viviendas</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <div class="nav-inner">
+        <div class="nav-brand">Administracion de Condominio</div>
+        <div class="nav-links">
+          <a class="nav-link" href="index.html">Inicio</a>
+          <a class="nav-link active" href="viviendas.html">Directorio <span>?</span></a>
+          <a class="nav-link" href="ingreso.html">Registrar <span>?</span></a>
+          <a class="nav-link" href="egreso.html">Consultar <span>?</span></a>
+          <a class="nav-link" href="reservas-admin.html">Reservas</a>
+          <a class="nav-link" href="anuncios-admin.html">Anuncios</a>
+          <a class="nav-link" href="pagos-admin.html">Pagos</a>
+
+          <a class="nav-link" href="cuotas.html">Generar Cuotas</a>
+          <a class="nav-link" href="login.html">Salir</a>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <img class="hero-logo" src="assets/img/logo.svg" alt="Logo" />
+        <div class="hero-title">
+          JUNTA DE PROPIETARIOS DEL CONJUNTO<br />
+          RESIDENCIAL ONTARIO 191-193-197
+        </div>
+      </div>
+    </section>
+
+    <main class="content full">
+      <div class="breadcrumb">
+        <a href="index.html">Inicio</a> / Directorio / Directorio de Viviendas
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-outline js-refresh" type="button">Actualizar</button>
+        <button class="btn btn-primary" type="button" data-open-modal="modalNuevo">Nuevo</button>
+        <div class="spacer"></div>
+        <input class="input search js-search" data-target="tabla-viviendas" placeholder="Buscar" />
+      </div>
+
+      <table id="tabla-viviendas" class="table js-table" data-per-page="5" data-resource="viviendas" data-columns="IdVivienda,NroVivienda,Telefono,Estado,PorceParti,AreaOcu,AreaTech,Comentario,IdSeccion">
+        <thead>
+          <tr>
+            <th class="sortable">Id</th>
+            <th class="sortable">Nro Vivienda</th>
+            <th class="sortable">Telefono</th>
+            <th class="sortable">Estado</th>
+            <th class="sortable">Participacion</th>
+            <th class="sortable">Area Ocupada</th>
+            <th class="sortable">Area Techada</th>
+            <th class="sortable">Comentario</th>
+            <th class="sortable">Id Seccion</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="pagination js-pagination" data-target="tabla-viviendas"></div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <h4>Logo</h4>
+          <p>Direccion: Calle Ontario #191-197 La Campina - Chorrillos</p>
+          <p>Telefono: 2658741 / 965874123</p>
+          <p>E-mail: juntapropietarioscampina2@gmail.com</p>
+        </div>
+        <div>
+          <h4>Acceso</h4>
+          <ul>
+            <li>Inicio</li>
+            <li>Un Ingreso</li>
+            <li>Un Egreso</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Ultimas Noticias</h4>
+          <ul>
+            <li>Noticia #1</li>
+            <li>Fecha</li>
+            <li>Noticia #1</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Facebook</h4>
+          <p>/condominio</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal" id="modalNuevo">
+    <div class="modal-content">
+      <div class="modal-header">Nueva Vivienda</div>
+      <form class="js-modal-form" data-resource="viviendas" data-table="tabla-viviendas">
+        <div class="modal-body">
+          <div class="form-row">
+            <label>Nro Vivienda:</label>
+            <input class="input" type="text" name="NroVivienda" placeholder="101" />
+          </div>
+          <div class="form-row">
+            <label>Telefono:</label>
+            <input class="input" type="text" name="Telefono" placeholder="Telefono" />
+          </div>
+          <div class="form-row">
+            <label>Estado:</label>
+            <input class="input" type="text" name="Estado" placeholder="O" />
+          </div>
+          <div class="form-row">
+            <label>Participacion:</label>
+            <input class="input" type="text" name="PorceParti" placeholder="1.00" />
+          </div>
+          <div class="form-row">
+            <label>Area Ocupada:</label>
+            <input class="input" type="text" name="AreaOcu" placeholder="65.00" />
+          </div>
+          <div class="form-row">
+            <label>Area Techada:</label>
+            <input class="input" type="text" name="AreaTech" placeholder="65.00" />
+          </div>
+          <div class="form-row">
+            <label>Comentario:</label>
+            <input class="input" type="text" name="Comentario" placeholder="Comentario" />
+          </div>
+          <div class="form-row">
+            <label>Id Seccion:</label>
+            <input class="input" type="text" name="IdSeccion" placeholder="01" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" type="button" data-close-modal>Cancelar</button>
+          <button class="btn btn-primary" type="submit">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Condominio - Generar Cuota</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <div class="nav-inner">
+        <div class="nav-brand">Administracion de Condominio</div>
+        <div class="nav-links">
+          <a class="nav-link" href="index.html">Inicio</a>
+          <a class="nav-link" href="secciones.html">Directorio <span>?</span></a>
+          <a class="nav-link" href="ingreso.html">Registrar <span>?</span></a>
+          <a class="nav-link" href="egreso.html">Consultar <span>?</span></a>
+          <a class="nav-link active" href="cuotas.html">Generar Cuotas</a>
+          <a class="nav-link" href="login.html">Salir</a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="content full">
+      <div class="breadcrumb">
+        <a href="index.html">Inicio</a> / Generar Cuota
+      </div>
+
+      <form class="js-modal-form" data-resource="cuotas">
+        <input type="hidden" name="Estado" value="Pendiente" />
+        <div class="panel-grid two">
+          <div class="panel">
+            <div class="panel-head">Seleccione Departamento</div>
+            <div class="panel-body">
+              <div class="form-row" style="grid-template-columns: 1fr;">
+                <label style="text-align: left;">Departamento:</label>
+                <select class="input" name="IdVivienda">
+                  <option value="1">A101</option>
+                  <option value="2">A102</option>
+                  <option value="3">B201</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" type="button">Cargar</button>
+                <button class="btn btn-warning" type="button">Importar Excel</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">Ingrese Datos</div>
+            <div class="panel-body">
+              <div class="form-row">
+                <label>Concepto:</label>
+                <input class="input" type="text" name="Concepto" placeholder="Concepto" />
+              </div>
+              <div class="form-row">
+                <label>Monto:</label>
+                <div class="input-group">
+                  <span class="input-prefix">S/.</span>
+                  <input class="input" type="text" name="Monto" placeholder="Monto" />
+                </div>
+              </div>
+              <div class="form-row">
+                <label>Fecha de Emision:</label>
+                <input class="input" type="date" name="FechaEmision" />
+              </div>
+              <div class="form-row">
+                <label>Fecha de Vencimiento:</label>
+                <input class="input" type="date" name="FechaVen" />
+              </div>
+              <div class="form-row">
+                <label>Clase Presupuestal:</label>
+                <select class="input" name="IdCPresupuestal">
+                  <option value="01">Cuotas de Mantenimiento</option>
+                  <option value="02">Cuotas Extraordinarias</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Tipo de Fondo:</label>
+                <select class="input" name="IdTipoFondo">
+                  <option value="01">Fondo Ordinario</option>
+                  <option value="02">Fondo Reserva</option>
+                </select>
+              </div>
+              <div style="text-align: left;">
+                <button class="btn btn-primary" type="submit">Agregar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <h4>Logo</h4>
+          <p>Direccion: Calle Ontario #191-197 La Campina - Chorrillos</p>
+          <p>Telefono: 2658741 / 965874123</p>
+          <p>E-mail: juntapropietarioscampina2@gmail.com</p>
+        </div>
+        <div>
+          <h4>Acceso</h4>
+          <ul>
+            <li>Inicio</li>
+            <li>Un Ingreso</li>
+            <li>Un Egreso</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Ultimas Noticias</h4>
+          <ul>
+            <li>Noticia #1</li>
+            <li>Fecha</li>
+            <li>Noticia #1</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Facebook</h4>
+          <p>/condominio</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
