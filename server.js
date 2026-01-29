@@ -386,6 +386,88 @@ app.patch("/api/pagos/:id", async (req, res) => {
       }
     }
     return res.json({ ok: true });
+
+app.post("/api/reclamos", async (req, res) => {
+  const { IdResidente, Tipo, Asunto, Descripcion, FechaEstimada } =
+    req.body || {};
+  if (!IdResidente || !Tipo || !Asunto || !Descripcion) {
+    return res.status(400).json({ message: "Datos incompletos." });
+  }
+  try {
+    const [result] = await db.query(
+      "INSERT INTO Reclamos (IdResidente, Tipo, Asunto, Descripcion, Estado, FechaRegistro, FechaEstimada) VALUES (?, ?, ?, ?, 'Pendiente', NOW(), ?)",
+      [IdResidente, Tipo, Asunto, Descripcion, FechaEstimada || null]
+    );
+    return res.status(201).json({ id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al registrar reclamo." });
+  }
+});
+
+app.get("/api/reclamos", async (req, res) => {
+  const residenteId = Number(req.query.residenteId);
+  if (!residenteId) {
+    return res.status(400).json({ message: "residenteId requerido." });
+  }
+  try {
+    const [rows] = await db.query(
+      `SELECT IdReclamo, Tipo, Asunto, Descripcion, Estado, Respuesta, FechaEstimada, FechaRegistro, FechaRespuesta
+       FROM Reclamos WHERE IdResidente = ? ORDER BY FechaRegistro DESC`,
+      [residenteId]
+    );
+    return res.json(rows);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al consultar reclamos." });
+  }
+});
+
+app.get("/api/reclamos/admin", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT r.IdReclamo, r.Tipo, r.Asunto, r.Descripcion, r.Estado, r.Respuesta, r.FechaEstimada, r.FechaRegistro, r.FechaRespuesta,
+              res.Nombre AS Residente
+       FROM Reclamos r
+       JOIN Residentes res ON r.IdResidente = res.IdResidente
+       ORDER BY r.FechaRegistro DESC`
+    );
+    return res.json(rows);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al consultar reclamos admin." });
+  }
+});
+
+app.patch("/api/reclamos/:id", async (req, res) => {
+  const { Estado, Respuesta, FechaEstimada } = req.body || {};
+  if (!Estado || !Respuesta) {
+    return res.status(400).json({ message: "Estado y respuesta requeridos." });
+  }
+  try {
+    const [rows] = await db.query(
+      `SELECT IdResidente FROM Reclamos WHERE IdReclamo = ?`,
+      [req.params.id]
+    );
+    await db.query(
+      "UPDATE Reclamos SET Estado = ?, Respuesta = ?, FechaEstimada = ?, FechaRespuesta = NOW() WHERE IdReclamo = ?",
+      [Estado, Respuesta, FechaEstimada || null, req.params.id]
+    );
+    if (rows.length) {
+      const mensaje = `Tu reclamo #${req.params.id} fue respondido: ${Respuesta}`;
+      await db.query("INSERT INTO Notificaciones (IdResidente, Mensaje, Fecha, Leido) VALUES (?, ?, NOW(), 0)", [
+        rows[0].IdResidente,
+        mensaje,
+      ]);
+    }
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al responder reclamo." });
+  }
+});
+
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error al actualizar pago." });

@@ -3,41 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Condominio - Reservas (Admin)</title>
+  <title>Condominio - Reclamos (Admin)</title>
   <link rel="stylesheet" href="assets/css/style.css" />
   <script src="assets/js/app.js" defer></script>
 </head>
-<body data-role="admin-reservas">
+<body data-role="admin-reclamos">
   <div class="page">
     <nav class="nav">
       <div class="nav-inner">
         <div class="nav-brand">Administracion de Condominio</div>
         <div class="nav-links">
           <a class="nav-link" href="index.html">Inicio</a>
-          <div class="nav-item">
-            <a class="nav-link" href="#">Directorio <span>?</span></a>
-            <div class="dropdown">
-              <a href="secciones.html">Directorio de Secciones</a>
-              <a href="empleados.html">Directorio de Empleados</a>
-              <a href="residentes.html">Directorio de Residentes</a>
-              <a href="vehiculos.html">Directorio de Vehiculos</a>
-              <a href="viviendas.html">Directorio de Viviendas</a>
-              <a href="proveedores.html">Directorio de Proveedores</a>
-            </div>
-          </div>
-          <div class="nav-item">
-            <a class="nav-link" href="#">Registrar <span>?</span></a>
-            <div class="dropdown">
-              <a href="ingreso.html">Ingresos</a>
-              <a href="egreso.html">Egresos</a>
-            </div>
-          </div>
-          <a class="nav-link" href="cuotas.html">Generar Cuotas</a>
-          <a class="nav-link active" href="reservas-admin.html">Reservas</a>
+          <a class="nav-link" href="secciones.html">Directorio <span>?</span></a>
+          <a class="nav-link" href="ingreso.html">Registrar <span>?</span></a>
+          <a class="nav-link" href="egreso.html">Consultar <span>?</span></a>
+          <a class="nav-link" href="reservas-admin.html">Reservas</a>
           <a class="nav-link" href="anuncios-admin.html">Anuncios</a>
           <a class="nav-link" href="pagos-admin.html">Pagos</a>
-          <a class="nav-link" href="reclamos-admin.html">Reclamos</a>
-
+          <a class="nav-link active" href="reclamos-admin.html">Reclamos</a>
+          <a class="nav-link" href="cuotas.html">Generar Cuotas</a>
           <a class="nav-link" href="login.html">Salir</a>
         </div>
       </div>
@@ -55,25 +39,55 @@
 
     <main class="content full">
       <div class="breadcrumb">
-        <a href="index.html">Inicio</a> / Reservas
+        <a href="index.html">Inicio</a> / Reclamos
       </div>
 
-      <table id="tabla-reservas-admin" class="table">
+      <table id="tabla-reclamos-admin" class="table">
         <thead>
           <tr>
             <th>Id</th>
             <th>Residente</th>
-            <th>Area</th>
-            <th>Fecha</th>
-            <th>Inicio</th>
-            <th>Fin</th>
+            <th>Tipo</th>
+            <th>Asunto</th>
             <th>Estado</th>
+            <th>Fecha Estimada</th>
+            <th>Respuesta</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </main>
+
+    <div class="modal" id="modalRespuesta">
+      <div class="modal-content">
+        <div class="modal-header">Responder Reclamo</div>
+        <form id="form-respuesta">
+          <div class="modal-body">
+            <input type="hidden" name="IdReclamo" />
+            <div class="form-row">
+              <label>Estado:</label>
+              <select class="input" name="Estado">
+                <option value="En proceso">En proceso</option>
+                <option value="Resuelto">Resuelto</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Respuesta:</label>
+              <textarea class="input" name="Respuesta"></textarea>
+            </div>
+            <div class="form-row">
+              <label>Fecha Estimada:</label>
+              <input class="input" type="date" name="FechaEstimada" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" type="button" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" type="submit">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <footer class="footer">
       <div class="footer-inner">
@@ -87,8 +101,8 @@
           <h4>Acceso</h4>
           <ul>
             <li>Inicio</li>
-            <li>Reservas</li>
-            <li>Anuncios</li>
+            <li>Reclamos</li>
+            <li>Pagos</li>
           </ul>
         </div>
         <div>

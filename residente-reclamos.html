@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Condominio - Residente</title>
+  <title>Condominio - Reclamos</title>
   <link rel="stylesheet" href="assets/css/style.css" />
   <script src="assets/js/app.js" defer></script>
 </head>
@@ -16,7 +16,7 @@
           <a class="nav-link" href="residente.html">Inicio</a>
           <a class="nav-link" href="residente-pagos.html">Pagos</a>
           <a class="nav-link" href="residente-reservas.html">Reservas</a>
-          <a class="nav-link" href="residente-reclamos.html">Quejas / Reclamos</a>
+          <a class="nav-link active" href="residente-reclamos.html">Quejas / Reclamos</a>
           <a class="nav-link" href="login.html">Salir</a>
         </div>
       </div>
@@ -32,11 +32,57 @@
       </div>
     </section>
 
-    <main class="content">
+    <main class="content full">
       <div class="breadcrumb">
-        <a href="residente.html">Inicio</a> / Anuncios
+        <a href="residente.html">Inicio</a> / Quejas y Reclamos
       </div>
-      <div id="anuncios-list" class="stack"></div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-head">Registrar Reclamo</div>
+          <div class="panel-body">
+            <form id="form-reclamo">
+              <div class="form-row">
+                <label>Tipo:</label>
+                <select class="input" name="Tipo">
+                  <option value="Queja">Queja</option>
+                  <option value="Reclamo">Reclamo</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Asunto:</label>
+                <input class="input" type="text" name="Asunto" />
+              </div>
+              <div class="form-row">
+                <label>Descripcion:</label>
+                <textarea class="input" name="Descripcion"></textarea>
+              </div>
+              <div style="text-align: right;">
+                <button class="btn btn-primary" type="submit">Enviar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Mis Reclamos</div>
+          <div class="panel-body">
+            <table id="tabla-reclamos" class="table">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Tipo</th>
+                  <th>Asunto</th>
+                  <th>Estado</th>
+                  <th>Fecha Estimada</th>
+                  <th>Respuesta</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer class="footer">
@@ -51,7 +97,7 @@
           <h4>Acceso</h4>
           <ul>
             <li>Inicio</li>
-            <li>Mis Pagos</li>
+            <li>Pagos</li>
             <li>Reservas</li>
           </ul>
         </div>

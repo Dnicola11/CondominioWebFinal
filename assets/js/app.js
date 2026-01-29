@@ -701,6 +701,7 @@ const initResidentPages = () => {
     renderCuotas(user.idResidente, "Pendiente");
     renderReservas(user.idResidente);
     renderNotificaciones(user.idResidente);
+    renderReclamosResidente(user.idResidente);
   }
   renderAreas();
   initReservaForm();
@@ -709,6 +710,131 @@ const initResidentPages = () => {
 const initAdminReservasPage = () => {
   if (document.body.dataset.role !== "admin-reservas") return;
   renderAdminReservas();
+};
+
+const renderReclamosResidente = async (residenteId) => {
+  const table = document.querySelector("#tabla-reclamos tbody");
+  if (!table) return;
+  try {
+    const response = await fetch(`/api/reclamos?residenteId=${residenteId}`);
+    const data = await response.json();
+    table.innerHTML = "";
+    data.forEach((row) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.IdReclamo}</td>
+        <td>${row.Tipo}</td>
+        <td>${row.Asunto}</td>
+        <td>${row.Estado}</td>
+        <td>${row.FechaEstimada || ""}</td>
+        <td>${row.Respuesta || ''}</td>
+      `;
+      table.appendChild(tr);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const initReclamoForm = () => {
+  const form = document.getElementById("form-reclamo");
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const user = getCurrentUser();
+    if (!user?.idResidente) {
+      window.alert('No hay residente asociado.');
+      return;
+    }
+    const payload = {
+      IdResidente: user.idResidente,
+      Tipo: form.querySelector('[name=Tipo]').value,
+      Asunto: form.querySelector('[name=Asunto]').value,
+      Descripcion: form.querySelector('[name=Descripcion]').value,
+    };
+    try {
+      const response = await fetch('/api/reclamos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('No se pudo registrar el reclamo.');
+      form.reset();
+      renderReclamosResidente(user.idResidente);
+    } catch (error) {
+      window.alert(error.message);
+    }
+  });
+};
+
+const renderReclamosAdmin = async () => {
+  const table = document.querySelector('#tabla-reclamos-admin tbody');
+  if (!table) return;
+  try {
+    const response = await fetch('/api/reclamos/admin');
+    const data = await response.json();
+    table.innerHTML = '';
+    data.forEach((row) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.IdReclamo}</td>
+        <td>${row.Residente}</td>
+        <td>${row.Tipo}</td>
+        <td>${row.Asunto}</td>
+        <td>${row.Estado}</td>
+        <td>${row.FechaEstimada || ''}</td>
+        <td>${row.Respuesta || ''}</td>
+        <td><button class='btn btn-primary btn-xs js-responder' data-id='${row.IdReclamo}'>Responder</button></td>
+      `;
+      table.appendChild(tr);
+    });
+    bindReclamoAdminActions();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const bindReclamoAdminActions = () => {
+  document.querySelectorAll('.js-responder').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const modal = document.getElementById('modalRespuesta');
+      if (!modal) return;
+      modal.querySelector('[name=IdReclamo]').value = btn.dataset.id;
+      modal.classList.add('active');
+    });
+  });
+};
+
+const initRespuestaForm = () => {
+  const form = document.getElementById('form-respuesta');
+  if (!form) return;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const id = form.querySelector('[name=IdReclamo]').value;
+    const Estado = form.querySelector('[name=Estado]').value;
+    const Respuesta = form.querySelector('[name=Respuesta]').value;
+    const FechaEstimada = form.querySelector('[name=FechaEstimada]').value;
+    try {
+      const response = await fetch(`/api/reclamos/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Estado, Respuesta, FechaEstimada }),
+      });
+      if (!response.ok) throw new Error('No se pudo responder.');
+      const modal = form.closest('.modal');
+      if (modal) modal.classList.remove('active');
+      form.reset();
+      renderReclamosAdmin();
+    } catch (error) {
+      window.alert(error.message);
+    }
+  });
+};
+
+const initAdminReclamosPage = () => {
+  if (document.body.dataset.role !== 'admin-reclamos') return;
+  renderReclamosAdmin();
+  initRespuestaForm();
 };
 
 const initAdminPagosPage = () => {
@@ -783,7 +909,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initPagosFilter();
   initAdminReservasPage();
   initPagoForm();
+  initReclamoForm();
   initAdminPagosPage();
+  initAdminReclamosPage();
   if (document.querySelector("#anuncios-list")) {
     renderAnuncios();
   }
