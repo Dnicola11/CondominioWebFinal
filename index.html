@@ -14,14 +14,28 @@
         <div class="nav-brand">Administracion de Condominio</div>
         <div class="nav-links">
           <a class="nav-link active" href="index.html">Inicio</a>
-          <a class="nav-link" href="secciones.html">Directorio <span>?</span></a>
-          <a class="nav-link" href="ingreso.html">Registrar <span>?</span></a>
-          <a class="nav-link" href="egreso.html">Consultar <span>?</span></a>
+          <div class="nav-item">
+            <a class="nav-link" href="#">Directorio <span>?</span></a>
+            <div class="dropdown">
+              <a href="secciones.html">Directorio de Secciones</a>
+              <a href="empleados.html">Directorio de Empleados</a>
+              <a href="residentes.html">Directorio de Residentes</a>
+              <a href="vehiculos.html">Directorio de Vehiculos</a>
+              <a href="viviendas.html">Directorio de Viviendas</a>
+              <a href="proveedores.html">Directorio de Proveedores</a>
+            </div>
+          </div>
+          <div class="nav-item">
+            <a class="nav-link" href="#">Registrar <span>?</span></a>
+            <div class="dropdown">
+              <a href="ingreso.html">Ingresos</a>
+              <a href="egreso.html">Egresos</a>
+            </div>
+          </div>
+          <a class="nav-link" href="cuotas.html">Generar Cuotas</a>
           <a class="nav-link" href="reservas-admin.html">Reservas</a>
           <a class="nav-link" href="anuncios-admin.html">Anuncios</a>
           <a class="nav-link" href="pagos-admin.html">Pagos</a>
-
-          <a class="nav-link" href="cuotas.html">Generar Cuotas</a>
           <a class="nav-link" href="login.html">Salir</a>
         </div>
       </div>
@@ -38,26 +52,11 @@
     </section>
 
     <main class="content">
-      <div class="content-wrap">
-        <div>
-          <div class="breadcrumb">
-            <a href="index.html">Inicio</a> / Inicio / Inicio
-          </div>
-          <div class="card">
-            <img src="assets/img/placeholder.svg" alt="Noticia" />
-            <h2 class="card-title">Anuncio</h2>
-            <div class="card-meta">11 de Mayo de 2017</div>
-            <p class="card-meta">202 B</p>
-          </div>
+      <div>
+        <div class="breadcrumb">
+          <a href="index.html">Inicio</a> / Inicio / Inicio
         </div>
-        <aside>
-          <div class="sidebar-title">Categorias</div>
-          <div class="list-group">
-            <a class="active" href="#">Noticias</a>
-            <a href="#">Publicaciones</a>
-            <a href="#">Noticias</a>
-          </div>
-        </aside>
+        <div id="anuncios-list" class="stack"></div>
       </div>
     </main>
 

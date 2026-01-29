@@ -784,4 +784,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAdminReservasPage();
   initPagoForm();
   initAdminPagosPage();
+  if (document.querySelector("#anuncios-list")) {
+    renderAnuncios();
+  }
 });

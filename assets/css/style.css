@@ -79,6 +79,41 @@ a:hover {
   align-items: center;
 }
 
+.nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #1f1f1f;
+  min-width: 220px;
+  border: 1px solid #121212;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  display: none;
+  z-index: 20;
+}
+
+.dropdown a {
+  display: block;
+  padding: 10px 12px;
+  color: var(--nav-text);
+  font-size: 13px;
+}
+
+.dropdown a:hover {
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+}
+
+.nav-item:hover .dropdown {
+  display: block;
+}
+
 .nav-link {
   padding: 14px 12px;
   color: var(--nav-text);
