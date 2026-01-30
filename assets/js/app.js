@@ -360,7 +360,6 @@ const initRegister = () => {
     const usuario = form.querySelector("[name=usuario]").value.trim();
     const email = form.querySelector("[name=email]").value.trim();
     const password = form.querySelector("[name=password]").value.trim();
-    const idResidente = form.querySelector("[name=IdResidente]")?.value.trim();
 
     if (!usuario || !email || !password) {
       if (alertBox) {
@@ -374,7 +373,7 @@ const initRegister = () => {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuario, email, password, IdResidente: idResidente }),
+        body: JSON.stringify({ usuario, email, password }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Error de registro");

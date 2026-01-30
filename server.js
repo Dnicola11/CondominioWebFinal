@@ -194,6 +194,13 @@ app.post("/api/register", async (req, res) => {
         residenteId = residentRows[0].IdResidente;
       }
     }
+    if (!residenteId) {
+      const [insertRes] = await db.query(
+        "INSERT INTO Residentes (Nombre, Email, Telefono, Estado, IdVivienda) VALUES (?, ?, NULL, '1', NULL)",
+        [usuario, email]
+      );
+      residenteId = insertRes.insertId;
+    }
     const [result] = await db.query(
       "INSERT INTO acceder (usuario, password, email, rol, IdResidente) VALUES (?, ?, ?, 'residente', ?)",
       [usuario, password, email, residenteId]
