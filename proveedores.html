@@ -115,11 +115,12 @@
     </footer>
   </div>
 
-  <div class="modal" id="modalNuevo">
+  <div class="modal" id="modalNuevo" data-modal-resource="proveedores">
     <div class="modal-content">
       <div class="modal-header">Nuevo Proveedor</div>
       <form class="js-modal-form" data-resource="proveedores" data-table="tabla-proveedores">
         <div class="modal-body">
+          <input type="hidden" name="IdProveedor" data-id="true" />
           <div class="form-row">
             <label>Descripcion:</label>
             <input class="input" type="text" name="Descripcion" placeholder="Servicio" />

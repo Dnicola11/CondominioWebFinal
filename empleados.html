@@ -114,11 +114,12 @@
     </footer>
   </div>
 
-  <div class="modal" id="modalNuevo">
+  <div class="modal" id="modalNuevo" data-modal-resource="empleados">
     <div class="modal-content">
       <div class="modal-header">Nuevo Empleado</div>
       <form class="js-modal-form" data-resource="empleados" data-table="tabla-empleados">
         <div class="modal-body">
+          <input type="hidden" name="IdEmpleado" data-id="true" />
           <div class="form-row">
             <label>Nombre:</label>
             <input class="input" type="text" name="Nombre" placeholder="Nombre" />

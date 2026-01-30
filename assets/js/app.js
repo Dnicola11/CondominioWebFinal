@@ -258,20 +258,28 @@ const bindEditButtons = (scope = document) => {
     button.addEventListener("click", (event) => {
       event.preventDefault();
       const resource = button.dataset.resource;
-      if (resource !== "anuncios") return;
-      const modal = document.getElementById("modalAnuncio");
-      if (!modal) return;
-      const form = modal.querySelector("form");
       const row = button.dataset.row
         ? JSON.parse(decodeURIComponent(button.dataset.row))
         : null;
-      if (form && row) {
-        form.querySelector("[name=IdAnuncio]").value = row.IdAnuncio || "";
-        form.querySelector("[name=Titulo]").value = row.Titulo || "";
-        form.querySelector("[name=Descripcion]").value = row.Descripcion || "";
-        form.querySelector("[name=Fecha]").value = row.Fecha || "";
-        form.querySelector("[name=ImagenUrl]").value = row.ImagenUrl || "";
-      }
+      if (!resource || !row) return;
+
+      const modal = document.querySelector(
+        `[data-modal-resource="${resource}"]`
+      );
+      if (!modal) return;
+      const form = modal.querySelector("form");
+      if (!form) return;
+
+      form.querySelectorAll("input, select, textarea").forEach((field) => {
+        const name = field.name;
+        if (!name) return;
+        if (row[name] !== undefined && row[name] !== null) {
+          field.value = row[name];
+        } else if (field.type !== "file") {
+          field.value = "";
+        }
+      });
+
       modal.classList.add("active");
     });
   });
@@ -296,12 +304,15 @@ const initCrudForms = () => {
       if (!resource) return;
 
       const isUpload = form.dataset.upload === "true";
-      const idField = form.querySelector("[name=IdAnuncio]");
-      const isEdit = idField && idField.value;
+      const idField =
+        form.querySelector("[data-id='true']") ||
+        form.querySelector("input[type='hidden'][name^='Id']");
+      const idValue = idField ? idField.value : "";
+      const isEdit = idValue;
       let url = `/api/${resource}`;
       let method = "POST";
       if (isEdit) {
-        url = `/api/${resource}/${idField.value}`;
+        url = `/api/${resource}/${idValue}`;
         method = "PUT";
       }
 

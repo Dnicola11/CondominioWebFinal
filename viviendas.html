@@ -117,11 +117,12 @@
     </footer>
   </div>
 
-  <div class="modal" id="modalNuevo">
+  <div class="modal" id="modalNuevo" data-modal-resource="viviendas">
     <div class="modal-content">
       <div class="modal-header">Nueva Vivienda</div>
       <form class="js-modal-form" data-resource="viviendas" data-table="tabla-viviendas">
         <div class="modal-body">
+          <input type="hidden" name="IdVivienda" data-id="true" />
           <div class="form-row">
             <label>Nro Vivienda:</label>
             <input class="input" type="text" name="NroVivienda" placeholder="101" />
