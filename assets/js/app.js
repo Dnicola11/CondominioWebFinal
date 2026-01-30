@@ -243,7 +243,10 @@ const bindDeleteButtons = (scope = document) => {
         const response = await fetch(`/api/${resource}/${id}`, {
           method: "DELETE",
         });
-        if (!response.ok) throw new Error("No se pudo eliminar.");
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.message || "No se pudo eliminar.");
+        }
         const table = button.closest("table");
         if (table) loadTableData(table);
       } catch (error) {
@@ -695,6 +698,82 @@ const initPagosFilter = () => {
   apply();
 };
 
+const initIngresoCargar = () => {
+  const btn = document.getElementById("btn-cargar-vivienda");
+  if (!btn) return;
+  btn.addEventListener("click", async () => {
+    const select = document.getElementById("ingreso-vivienda");
+    const id = select ? select.value : null;
+    if (!id) return;
+    try {
+      const response = await fetch(`/api/viviendas/${id}/resumen`);
+      if (!response.ok) throw new Error("No se pudo cargar.");
+      const data = await response.json();
+      const total = document.getElementById("ingreso-total-deuda");
+      const ultima = document.getElementById("ingreso-ultima-cuota");
+      if (total) total.value = data.totalDeuda ?? 0;
+      if (ultima) ultima.value = data.ultimaCuota ?? 0;
+    } catch (error) {
+      window.alert(error.message);
+    }
+  });
+};
+
+const initProveedorModal = () => {
+  const modal = document.getElementById("modalProveedor");
+  const list = document.getElementById("lista-proveedores");
+  const search = document.getElementById("buscar-proveedor");
+  const inputProveedor = document.getElementById("egreso-proveedor");
+  if (!modal || !list || !search || !inputProveedor) return;
+
+  let proveedores = [];
+
+  const render = (filter = "") => {
+    list.innerHTML = "";
+    const q = filter.trim().toLowerCase();
+    proveedores
+      .filter(
+        (p) =>
+          !q ||
+          p.Nombre.toLowerCase().includes(q) ||
+          p.Descripcion.toLowerCase().includes(q)
+      )
+      .forEach((p) => {
+        const tr = document.createElement("tr");
+        tr.style.cursor = "pointer";
+        tr.innerHTML = `
+          <td>${p.IdProveedor}</td>
+          <td>${p.Nombre}</td>
+          <td>${p.Descripcion}</td>
+        `;
+        tr.addEventListener("click", () => {
+          inputProveedor.value = p.Nombre;
+          modal.classList.remove("active");
+        });
+        list.appendChild(tr);
+      });
+  };
+
+  const load = async () => {
+    try {
+      const response = await fetch("/api/proveedores");
+      const data = await response.json();
+      proveedores = Array.isArray(data) ? data : [];
+      render(search.value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  search.addEventListener("input", () => render(search.value));
+
+  document
+    .querySelectorAll("[data-open-modal=\"modalProveedor\"]")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => load());
+    });
+};
+
 const initResidentPages = () => {
   const residentPage = document.body.dataset.role === "residente";
   if (!residentPage) return;
@@ -926,4 +1005,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.querySelector("#anuncios-list")) {
     renderAnuncios();
   }
+  initIngresoCargar();
+  initProveedorModal();
 });

@@ -611,6 +611,38 @@ app.patch("/api/reclamos/:id", async (req, res) => {
   }
 });
 
+app.get("/api/viviendas/:id/resumen", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: "Id vivienda requerido." });
+  }
+  try {
+    const [totalRows] = await db.query(
+      `SELECT 
+         IFNULL(SUM(CASE WHEN Estado IN ('Pendiente', 'En revision') THEN Monto ELSE 0 END), 0) AS totalDeuda
+       FROM Cuota
+       WHERE IdVivienda = ?`,
+      [id]
+    );
+    const [lastRows] = await db.query(
+      `SELECT Monto, FechaEmision
+       FROM Cuota
+       WHERE IdVivienda = ?
+       ORDER BY FechaEmision DESC
+       LIMIT 1`,
+      [id]
+    );
+    return res.json({
+      totalDeuda: totalRows[0]?.totalDeuda || 0,
+      ultimaCuota: lastRows[0]?.Monto || 0,
+      ultimaFecha: lastRows[0]?.FechaEmision || null,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al consultar vivienda." });
+  }
+});
+
 app.get("/api/:resource", async (req, res) => {
   const resource = getResource(req.params.resource);
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
@@ -692,6 +724,11 @@ app.delete("/api/:resource/:id", async (req, res) => {
     return res.json({ ok: true });
   } catch (error) {
     console.error(error);
+    if (error.code === "ER_ROW_IS_REFERENCED_2") {
+      return res.status(409).json({
+        message: "No se puede eliminar porque tiene registros relacionados.",
+      });
+    }
     return res.status(500).json({ message: "Error al eliminar." });
   }
 });

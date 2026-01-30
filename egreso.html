@@ -56,8 +56,8 @@
               <div class="form-row">
                 <label>Proveedor:</label>
                 <div class="input-group" style="gap: 8px;">
-                  <input class="input" type="text" placeholder="Buscar" />
-                  <button class="btn btn-outline" type="button">Buscar</button>
+                  <input class="input" type="text" id="egreso-proveedor" placeholder="Buscar" />
+                  <button class="btn btn-outline" type="button" data-open-modal="modalProveedor">Buscar</button>
                 </div>
               </div>
               <div class="form-row">
@@ -143,6 +143,28 @@
         </div>
       </div>
     </footer>
+  </div>
+
+  <div class="modal" id="modalProveedor">
+    <div class="modal-content">
+      <div class="modal-header">Seleccionar Proveedor</div>
+      <div class="modal-body">
+        <input class="input" type="text" id="buscar-proveedor" placeholder="Buscar proveedor" />
+        <table class="table" style="margin-top:10px;">
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Nombre</th>
+              <th>Descripcion</th>
+            </tr>
+          </thead>
+          <tbody id="lista-proveedores"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" type="button" data-close-modal>Cancelar</button>
+      </div>
+    </div>
   </div>
 </body>
 </html>
