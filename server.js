@@ -135,6 +135,54 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
+const getNextSeccionId = async () => {
+  const [rows] = await db.query(
+    "SELECT MAX(CAST(IdSeccion AS UNSIGNED)) AS maxId FROM Seccion"
+  );
+  const maxId = rows[0]?.maxId ? Number(rows[0].maxId) : 0;
+  const next = maxId + 1;
+  return String(next).padStart(2, "0");
+};
+
+app.get("/api/secciones/next", async (req, res) => {
+  try {
+    const IdSeccion = await getNextSeccionId();
+    return res.json({ IdSeccion });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al generar IdSeccion." });
+  }
+});
+
+app.post("/api/soporte", async (req, res) => {
+  const { Nombre, Email, Mensaje } = req.body || {};
+  if (!Nombre || !Email || !Mensaje) {
+    return res.status(400).json({ message: "Datos incompletos." });
+  }
+  try {
+    const [result] = await db.query(
+      "INSERT INTO Soporte_Acceso (Nombre, Email, Mensaje, Fecha) VALUES (?, ?, ?, NOW())",
+      [Nombre, Email, Mensaje]
+    );
+    return res.status(201).json({ id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al registrar soporte." });
+  }
+});
+
+app.get("/api/soporte", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT IdSoporte, Nombre, Email, Mensaje, Fecha FROM Soporte_Acceso ORDER BY Fecha DESC"
+    );
+    return res.json(rows);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al consultar soporte." });
+  }
+});
+
 app.post("/api/login", async (req, res) => {
   const { usuario, password } = req.body || {};
   if (!usuario || !password) {
@@ -142,7 +190,11 @@ app.post("/api/login", async (req, res) => {
   }
   try {
     const [rows] = await db.query(
-      "SELECT id, usuario, email, password, rol, IdResidente FROM acceder WHERE usuario = ? OR email = ? LIMIT 1",
+      `SELECT a.id, a.usuario, a.email, a.password, a.rol, a.IdResidente, r.Estado AS ResidenteEstado
+       FROM acceder a
+       LEFT JOIN Residentes r ON a.IdResidente = r.IdResidente
+       WHERE a.usuario = ? OR a.email = ?
+       LIMIT 1`,
       [usuario, usuario]
     );
     if (!rows.length) {
@@ -151,6 +203,9 @@ app.post("/api/login", async (req, res) => {
     const user = rows[0];
     if (user.password !== password) {
       return res.status(401).json({ message: "Credenciales invalidas." });
+    }
+    if (user.rol === "residente" && user.IdResidente && user.ResidenteEstado === "0") {
+      return res.status(403).json({ message: "Cuenta desactivada." });
     }
     return res.json({
       user: {
@@ -324,6 +379,11 @@ app.post("/api/pagos", uploadComprobante.single("comprobante"), async (req, res)
     );
     await db.query("UPDATE Cuota SET Estado = 'En revision' WHERE IdCuota = ?", [IdCuota]);
     return res.status(201).json({ id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al registrar pago." });
+  }
+});
 
 app.get("/api/pagos", async (req, res) => {
   const residenteId = Number(req.query.residenteId);
@@ -378,34 +438,24 @@ app.patch("/api/pagos/:id", async (req, res) => {
     if (rows.length) {
       const pago = rows[0];
       const mensaje = `Tu pago de la cuota ${pago.IdCuota} fue ${estado}.`;
-      await db.query("INSERT INTO Notificaciones (IdResidente, Mensaje, Fecha, Leido) VALUES (?, ?, NOW(), 0)", [
-        pago.IdResidente,
-        mensaje,
-      ]);
-      if (estado === 'Aprobado') {
+      await db.query(
+        "INSERT INTO Notificaciones (IdResidente, Mensaje, Fecha, Leido) VALUES (?, ?, NOW(), 0)",
+        [pago.IdResidente, mensaje]
+      );
+      if (estado === "Aprobado") {
         await db.query("UPDATE Cuota SET Estado = 'Pagado' WHERE IdCuota = ?", [
           pago.IdCuota,
         ]);
-      } else if (estado === 'Rechazado') {
+      } else if (estado === "Rechazado") {
         await db.query("UPDATE Cuota SET Estado = 'Pendiente' WHERE IdCuota = ?", [
           pago.IdCuota,
         ]);
       }
     }
     return res.json({ ok: true });
-
-
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error al actualizar pago." });
-  }
-});
-
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Error al registrar pago." });
   }
 });
 
@@ -668,6 +718,17 @@ app.post("/api/:resource", async (req, res) => {
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
 
   const payload = req.body || {};
+  if (
+    req.params.resource === "secciones" &&
+    (payload.IdSeccion === undefined || payload.IdSeccion === "")
+  ) {
+    try {
+      payload.IdSeccion = await getNextSeccionId();
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Error al generar IdSeccion." });
+    }
+  }
   const columns = resource.columns.filter((col) => {
     if (col === resource.id && resource.autoId && payload[col] === undefined) {
       return false;
@@ -724,6 +785,13 @@ app.delete("/api/:resource/:id", async (req, res) => {
   const resource = getResource(req.params.resource);
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
   try {
+    if (req.params.resource === "residentes") {
+      await db.query(
+        "UPDATE Residentes SET Estado = '0' WHERE IdResidente = ?",
+        [req.params.id]
+      );
+      return res.json({ ok: true, softDeleted: true });
+    }
     await db.query(
       `DELETE FROM ${resource.table} WHERE ${resource.id} = ?`,
       [req.params.id]

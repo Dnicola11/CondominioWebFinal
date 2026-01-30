@@ -141,9 +141,10 @@ const loadTableData = async (table) => {
 
       const actionCell = document.createElement("td");
       const encoded = encodeURIComponent(JSON.stringify(row));
+      const deleteLabel = resource === "residentes" ? "Desactivar" : "Eliminar";
       actionCell.innerHTML = `
         <a class="btn btn-primary btn-xs js-edit" href="#" data-resource="${resource}" data-row="${encoded}">Edit</a>
-        <a class="btn btn-danger btn-xs js-delete" href="#" data-id="${row[columns[0]]}" data-resource="${resource}">Eliminar</a>
+        <a class="btn btn-danger btn-xs js-delete" href="#" data-id="${row[columns[0]]}" data-resource="${resource}">${deleteLabel}</a>
       `;
       tr.appendChild(actionCell);
       tbody.appendChild(tr);
@@ -180,6 +181,16 @@ const initModal = () => {
             const idField = form.querySelector("[name=IdAnuncio]");
             if (idField) idField.value = "";
           }
+        }
+        const autoField = modal.querySelector("[data-auto='seccion']");
+        if (autoField) {
+          autoField.value = "";
+          fetch("/api/secciones/next")
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+              if (data?.IdSeccion) autoField.value = data.IdSeccion;
+            })
+            .catch(() => {});
         }
         modal.classList.add("active");
       }
@@ -238,7 +249,11 @@ const bindDeleteButtons = (scope = document) => {
       const resource = button.dataset.resource;
       const id = button.dataset.id;
       if (!resource || !id) return;
-      if (!window.confirm("Deseas eliminar este registro?")) return;
+      const confirmMsg =
+        resource === "residentes"
+          ? "Deseas desactivar este residente?"
+          : "Deseas eliminar este registro?";
+      if (!window.confirm(confirmMsg)) return;
       try {
         const response = await fetch(`/api/${resource}/${id}`, {
           method: "DELETE",
@@ -924,6 +939,8 @@ const initAdminReclamosPage = () => {
   if (document.body.dataset.role !== 'admin-reclamos') return;
   renderReclamosAdmin();
   initRespuestaForm();
+  renderSoporteAdmin();
+  initSoporteRespuestaForm();
 };
 
 const initAdminPagosPage = () => {
@@ -987,6 +1004,112 @@ const updatePagoEstado = async (id, estado) => {
   }
 };
 
+const initSoporteForm = () => {
+  const form = document.querySelector(".js-soporte");
+  if (!form) return;
+  const alertBox = document.querySelector("#soporte-alert");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const Nombre = form.querySelector("[name=Nombre]").value.trim();
+    const Email = form.querySelector("[name=Email]").value.trim();
+    const Mensaje = form.querySelector("[name=Mensaje]").value.trim();
+
+    if (!Nombre || !Email || !Mensaje) {
+      if (alertBox) {
+        alertBox.style.display = "block";
+        alertBox.textContent = "Completa todos los campos.";
+      }
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/soporte", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Nombre, Email, Mensaje }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "No se pudo enviar el mensaje.");
+      }
+      if (alertBox) {
+        alertBox.style.display = "block";
+        alertBox.textContent = "Mensaje enviado. Te contactaremos pronto.";
+      }
+      form.reset();
+    } catch (error) {
+      if (alertBox) {
+        alertBox.style.display = "block";
+        alertBox.textContent = error.message;
+      }
+    }
+  });
+};
+
+const renderSoporteAdmin = async () => {
+  const table = document.querySelector("#tabla-soporte-admin tbody");
+  if (!table) return;
+  try {
+    const response = await fetch("/api/soporte");
+    const data = await response.json();
+    table.innerHTML = "";
+    data.forEach((row) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.IdSoporte}</td>
+        <td>${row.Nombre || ""}</td>
+        <td>${row.Email || ""}</td>
+        <td>${row.Mensaje || ""}</td>
+        <td>${row.Fecha || ""}</td>
+        <td>${row.Estado || ""}</td>
+        <td>${row.Respuesta || ""}</td>
+        <td><button class="btn btn-primary btn-xs js-responder-soporte" data-id="${row.IdSoporte}">Responder</button></td>
+      `;
+      table.appendChild(tr);
+    });
+    bindSoporteAdminActions();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const bindSoporteAdminActions = () => {
+  document.querySelectorAll(".js-responder-soporte").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const modal = document.getElementById("modalSoporte");
+      if (!modal) return;
+      modal.querySelector("[name=IdSoporte]").value = btn.dataset.id;
+      modal.classList.add("active");
+    });
+  });
+};
+
+const initSoporteRespuestaForm = () => {
+  const form = document.getElementById("form-soporte-respuesta");
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const IdSoporte = form.querySelector("[name=IdSoporte]").value;
+    const Estado = form.querySelector("[name=Estado]").value;
+    const Respuesta = form.querySelector("[name=Respuesta]").value;
+    try {
+      const response = await fetch(`/api/soporte/${IdSoporte}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Estado, Respuesta }),
+      });
+      if (!response.ok) throw new Error("No se pudo responder.");
+      const modal = form.closest(".modal");
+      if (modal) modal.classList.remove("active");
+      form.reset();
+      renderSoporteAdmin();
+    } catch (error) {
+      window.alert(error.message);
+    }
+  });
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTables();
   initModal();
@@ -994,6 +1117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initActions();
   initCrudForms();
   initRegister();
+  initSoporteForm();
   initResidentPages();
   initPagosFilter();
   initAdminReservasPage();

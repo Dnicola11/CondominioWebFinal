@@ -1,0 +1,10 @@
+USE Condominio;
+
+CREATE TABLE IF NOT EXISTS Soporte_Acceso (
+  IdSoporte INT NOT NULL AUTO_INCREMENT,
+  Nombre VARCHAR(150) NOT NULL,
+  Email VARCHAR(150) NOT NULL,
+  Mensaje TEXT NOT NULL,
+  Fecha DATETIME NOT NULL,
+  PRIMARY KEY (IdSoporte)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;

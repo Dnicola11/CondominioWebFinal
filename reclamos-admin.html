@@ -57,6 +57,24 @@
         </thead>
         <tbody></tbody>
       </table>
+
+      <div style="height:20px;"></div>
+      <h3>Solicitudes de acceso</h3>
+      <table id="tabla-soporte-admin" class="table">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Mensaje</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Respuesta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </main>
 
     <div class="modal" id="modalRespuesta">
@@ -79,6 +97,32 @@
             <div class="form-row">
               <label>Fecha Estimada:</label>
               <input class="input" type="date" name="FechaEstimada" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" type="button" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" type="submit">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="modalSoporte">
+      <div class="modal-content">
+        <div class="modal-header">Responder Solicitud</div>
+        <form id="form-soporte-respuesta">
+          <div class="modal-body">
+            <input type="hidden" name="IdSoporte" />
+            <div class="form-row">
+              <label>Estado:</label>
+              <select class="input" name="Estado">
+                <option value="En proceso">En proceso</option>
+                <option value="Atendido">Atendido</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Respuesta:</label>
+              <textarea class="input" name="Respuesta"></textarea>
             </div>
           </div>
           <div class="modal-footer">
