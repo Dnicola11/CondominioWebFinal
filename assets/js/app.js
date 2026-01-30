@@ -346,7 +346,8 @@ const initCrudForms = () => {
           headers: isUpload ? undefined : { "Content-Type": "application/json" },
           body: isUpload ? formData : JSON.stringify(payload),
         });
-        if (!response.ok) throw new Error("No se pudo guardar.");
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "No se pudo guardar.");
         const modal = form.closest(".modal");
         if (modal) modal.classList.remove("active");
         if (tableId) {
@@ -355,8 +356,9 @@ const initCrudForms = () => {
         }
         form.reset();
         if (idField) idField.value = "";
-        if (!tableId) {
-          window.alert("Registro guardado.");
+        const successMessage = form.dataset.successMessage;
+        if (successMessage || !tableId) {
+          window.alert(successMessage || "Registro guardado.");
         }
       } catch (error) {
         window.alert(error.message);
