@@ -13,7 +13,7 @@ export let options = {
 
 // Definir las solicitudes HTTP que se simularán
 export default function () {
-  let res = http.post('http://localhost:3000/login.html', {
+  let res = http.post('http://localhost:3000/api/login', {
     username: 'admin',
     password: 'admin123',
   });
