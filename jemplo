@@ -1,0 +1,75 @@
+Proyecto (condominiowebfinal)
+├── _source_images/          # Imágenes fuente que se utilizan en el proyecto
+├── .vscode/                 # Configuración de Visual Studio Code
+├── assets/                  # Archivos estáticos como imágenes y CSS
+│   ├── js/                  # Archivos JavaScript (app.js, db.js, etc.)
+├── node_modules/            # Dependencias de npm
+├── tests/                   # Archivos de pruebas automatizadas (app.test.js)
+├── uploads/                 # Archivos subidos por los usuarios (si aplica)
+├── .env                     # Archivos de configuración de entorno
+├── .env.example             # Archivo de ejemplo de configuración de entorno
+├── .gitignore               # Archivos que deben ser ignorados por git
+├── anuncios-admin.html      # Páginas HTML (para administración de anuncios)
+├── bd.png                   # Imagen de base de datos
+├── bdcondominio.pdf         # Documentación en PDF
+├── condominiosql.sql        # Archivo SQL con la estructura de la base de datos
+├── cuotas.html              # Página de cuotas
+├── db.js                    # Archivo de conexión a base de datos
+├── egreso.html              # Página de egreso
+├── empleados.html           # Página de empleados
+├── imagenes.docx            # Imagenes en el sistema
+├── index.html               # Página principal del sitio web
+├── ingreso.html             # Página de ingreso
+├── jest.config.js           # Configuración de Jest para las pruebas
+├── login.html               # Página de login
+├── package-lock.json        # Archivo de bloqueo de dependencias
+├── package.json             # Archivo de configuración de npm
+├── pagos-admin.html         # Página de administración de pagos
+├── proveedores.html         # Página de proveedores
+├── reclamos-admin.html      # Página de administración de reclamos
+├── reservas-admin.html      # Página de administración de reservas
+├── residente-pagos.html     # Página de pagos para residentes
+
+
+
+// app.js - Lógica principal de la aplicación
+
+// Función para manejar las tablas de datos
+const tableStates = new Map();
+
+// Conectar eventos de búsqueda y ordenación en las tablas
+const wireTable = (table) => {
+  // Lógica para conectar las tablas
+};
+
+
+// db.js - Conexión a la base de datos
+
+const mysql = require('mysql');
+
+// Conexión a la base de datos MySQL
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'password',
+  database: 'condominio'
+});
+
+connection.connect((err) => {
+  if (err) throw err;
+  console.log('Conexión exitosa a la base de datos');
+});
+
+
+
+// jest.config.js - Configuración de Jest para pruebas
+
+module.exports = {
+  testEnvironment: "jsdom", // Configuración para usar jsdom en las pruebas
+  transform: {
+    '^.+\\.js$': 'babel-jest', // Usar Babel para transformar código JS
+  },
+  setupFilesAfterEnv: ['<rootDir>/setupTests.js'], // Configuración adicional para Jest
+};
+
+
