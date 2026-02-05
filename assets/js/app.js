@@ -1133,3 +1133,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initIngresoCargar();
   initProveedorModal();
 });
+
+module.exports = { wireTable };  // Esto hace que `wireTable` sea accesible en otros archivos
+
