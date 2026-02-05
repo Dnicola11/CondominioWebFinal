@@ -2,7 +2,6 @@ import http from 'k6/http';
 import { check } from 'k6';
 import { sleep } from 'k6';
 
-// Configuración de los usuarios virtuales
 export let options = {
   stages: [
     { duration: '1m', target: 100 },
@@ -11,11 +10,11 @@ export let options = {
   ],
 };
 
-// Definir las solicitudes HTTP que se simularán
 export default function () {
+  // Solicitud POST al endpoint de login
   let res = http.post('http://localhost:3000/api/login', {
-    username: 'admin',
-    password: 'admin123',
+    usuario: 'admin',  // Usuario validado
+    password: 'admin123',  // Contraseña validada
   });
 
   // Verificar que la respuesta sea exitosa (status 200)
@@ -23,5 +22,5 @@ export default function () {
     'is status 200': (r) => r.status === 200,
   });
 
-  sleep(1); // Pausa de 1 segundo entre solicitudes
+  sleep(1);  // Pausa entre solicitudes
 }
