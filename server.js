@@ -1,4 +1,7 @@
-﻿const path = require("path");
+﻿/* ============================= */
+/* ======= Imports/config ====== */
+/* ============================= */
+const path = require("path");
 const fs = require("fs");
 const express = require("express");
 const cors = require('cors');
@@ -7,14 +10,26 @@ require("dotenv").config();
 const db = require("./db");
 
 
+
+/* ============================= */
+/* ====== App initialization ==== */
+/* ============================= */
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+/* ============================= */
+/* ======== Middlewares ========= */
+/* ============================= */
 app.use(cors());
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
+
+/* ============================= */
+/* ======= Uploads setup ======== */
+/* ============================= */
 const uploadsRoot = path.join(__dirname, "uploads");
 const anunciosDir = path.join(uploadsRoot, "anuncios");
 const comprobantesDir = path.join(uploadsRoot, "comprobantes");
@@ -35,6 +50,10 @@ const makeStorage = (dest) =>
 const uploadAnuncio = multer({ storage: makeStorage(anunciosDir) });
 const uploadComprobante = multer({ storage: makeStorage(comprobantesDir) });
 
+
+/* ============================= */
+/* ======= Resource map ========= */
+/* ============================= */
 const resources = {
   secciones: {
     table: "Seccion",
@@ -135,12 +154,21 @@ const resources = {
   },
 };
 
+
+/* ============================= */
+/* ========= Healthcheck ======== */
+/* ============================= */
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
+
+/* ============================= */
+/* ======= Secciones helper ===== */
+/* ============================= */
 const getNextSeccionId = async () => {
   const [rows] = await db.query(
+    // Buscar usuario por usuario o email
     "SELECT MAX(CAST(IdSeccion AS UNSIGNED)) AS maxId FROM Seccion"
   );
   const maxId = rows[0]?.maxId ? Number(rows[0].maxId) : 0;
@@ -158,6 +186,10 @@ app.get("/api/secciones/next", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ======= Soporte acceso ======= */
+/* ============================= */
 app.post("/api/soporte", async (req, res) => {
   const { Nombre, Email, Mensaje } = req.body || {};
   if (!Nombre || !Email || !Mensaje) {
@@ -187,10 +219,16 @@ app.get("/api/soporte", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ======= Auth (login/register) */
+/* ============================= */
 app.post("/api/login", async (req, res) => {
+  /* === Validar credenciales === */
   console.log(req.body)
   const { usuario, password } = req.body || {};
   if (!usuario || !password) {
+    // Usuario y contrase?a requeridos
     return res.status(400).json({ message: "Usuario y contrasena requeridos." });
   }
   try {
@@ -203,13 +241,16 @@ app.post("/api/login", async (req, res) => {
       [usuario, usuario]
     );
     if (!rows.length) {
+      // No existe el usuario
       return res.status(401).json({ message: "Credenciales invalidas." });
     }
     const user = rows[0];
     if (user.password !== password) {
+      // Contrase?a incorrecta
       return res.status(401).json({ message: "Credenciales invalidas." });
     }
     if (user.rol === "residente" && user.IdResidente && user.ResidenteEstado === "0") {
+      // Residente desactivado
       return res.status(403).json({ message: "Cuenta desactivada." });
     }
     return res.json({
@@ -228,12 +269,14 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.post("/api/register", async (req, res) => {
+  /* === Registrar residente === */
   const { usuario, email, password, IdResidente } = req.body || {};
   if (!usuario || !email || !password) {
     return res.status(400).json({ message: "Datos incompletos." });
   }
   try {
     const [existing] = await db.query(
+    // Validar usuario/email duplicado
       "SELECT id FROM acceder WHERE usuario = ? OR email = ? LIMIT 1",
       [usuario, email]
     );
@@ -246,6 +289,8 @@ app.post("/api/register", async (req, res) => {
       if (!Number.isNaN(parsed)) residenteId = parsed;
     }
     if (!residenteId) {
+      // Crear residente si no existe
+      // Buscar residente por email
       const [residentRows] = await db.query(
         "SELECT IdResidente FROM Residentes WHERE Email = ? LIMIT 1",
         [email]
@@ -272,6 +317,10 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* =========== Anuncios ========= */
+/* ============================= */
 app.get("/api/anuncios", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -285,12 +334,14 @@ app.get("/api/anuncios", async (req, res) => {
 });
 
 app.post("/api/anuncios", uploadAnuncio.single("imagen"), async (req, res) => {
+  /* === Crear anuncio === */
   const { Titulo, Descripcion, Fecha, ImagenUrl } = req.body || {};
   if (!Titulo) {
     return res.status(400).json({ message: "Titulo requerido." });
   }
   try {
     const imagenFinal = req.file
+    // Guardar imagen subida o URL manual
       ? `/uploads/anuncios/${req.file.filename}`
       : ImagenUrl || null;
     const [result] = await db.query(
@@ -305,10 +356,12 @@ app.post("/api/anuncios", uploadAnuncio.single("imagen"), async (req, res) => {
 });
 
 app.put("/api/anuncios/:id", uploadAnuncio.single("imagen"), async (req, res) => {
+  /* === Actualizar anuncio === */
   const { Titulo, Descripcion, Fecha, ImagenUrl } = req.body || {};
   try {
     let imagenFinal = ImagenUrl || null;
     if (req.file) {
+      // Reemplazar imagen si se sube nueva
       imagenFinal = `/uploads/anuncios/${req.file.filename}`;
     } else if (!ImagenUrl) {
       const [rows] = await db.query("SELECT ImagenUrl FROM Anuncios WHERE IdAnuncio = ?", [req.params.id]);
@@ -326,6 +379,7 @@ app.put("/api/anuncios/:id", uploadAnuncio.single("imagen"), async (req, res) =>
 });
 
 app.delete("/api/anuncios/:id", async (req, res) => {
+  /* === Eliminar anuncio === */
   try {
     const [rows] = await db.query("SELECT ImagenUrl FROM Anuncios WHERE IdAnuncio = ?", [req.params.id]);
     await db.query("DELETE FROM Anuncios WHERE IdAnuncio = ?", [req.params.id]);
@@ -342,6 +396,10 @@ app.delete("/api/anuncios/:id", async (req, res) => {
 });
 
 
+
+/* ============================= */
+/* ======= Areas comunes ======== */
+/* ============================= */
 app.get("/api/areas", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -354,6 +412,10 @@ app.get("/api/areas", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ======== Notificaciones ====== */
+/* ============================= */
 app.get("/api/notificaciones", async (req, res) => {
   const residenteId = Number(req.query.residenteId);
   if (!residenteId) {
@@ -371,13 +433,21 @@ app.get("/api/notificaciones", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ============ Pagos =========== */
+/* ============================= */
 app.post("/api/pagos", uploadComprobante.single("comprobante"), async (req, res) => {
+  /* === Registrar pago con comprobante === */
   const { IdCuota, IdResidente, Monto } = req.body || {};
   if (!IdCuota || !IdResidente || !Monto) {
     return res.status(400).json({ message: "Datos incompletos." });
   }
   try {
-    const comprobanteUrl = req.file ? `/uploads/comprobantes/${req.file.filename}` : null;
+    // Guardar archivo y registrar URL
+    const comprobanteUrl = req.file
+      ? `/uploads/comprobantes/${req.file.filename}`
+      : null;
     const [result] = await db.query(
       "INSERT INTO Pagos (IdCuota, IdResidente, FechaPago, Monto, Estado, ComprobanteUrl) VALUES (?, ?, NOW(), ?, 'En revision', ?)",
       [IdCuota, IdResidente, Monto, comprobanteUrl]
@@ -427,6 +497,7 @@ app.get("/api/pagos/admin", async (req, res) => {
 });
 
 app.patch("/api/pagos/:id", async (req, res) => {
+  /* === Aprobar/Rechazar pago === */
   const estado = req.body?.Estado;
   if (!estado) {
     return res.status(400).json({ message: "Estado requerido." });
@@ -448,6 +519,7 @@ app.patch("/api/pagos/:id", async (req, res) => {
         [pago.IdResidente, mensaje]
       );
       if (estado === "Aprobado") {
+      // Actualizar estado de la cuota
         await db.query("UPDATE Cuota SET Estado = 'Pagado' WHERE IdCuota = ?", [
           pago.IdCuota,
         ]);
@@ -465,6 +537,10 @@ app.patch("/api/pagos/:id", async (req, res) => {
 });
 
 
+
+/* ============================= */
+/* ======= Cuotas residente ===== */
+/* ============================= */
 app.get("/api/residente/cuotas", async (req, res) => {
   const residenteId = Number(req.query.residenteId);
   const estado = req.query.estado;
@@ -501,6 +577,10 @@ app.get("/api/residente/cuotas", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* =========== Reservas ========= */
+/* ============================= */
 app.get("/api/reservas", async (req, res) => {
   const residenteId = Number(req.query.residenteId);
   if (!residenteId) {
@@ -542,6 +622,7 @@ app.get("/api/reservas/admin", async (req, res) => {
 });
 
 app.post("/api/reservas", async (req, res) => {
+  /* === Registrar reserva === */
   const { IdResidente, IdArea, Fecha, HoraInicio, HoraFin } = req.body || {};
   if (!IdResidente || !IdArea || !Fecha || !HoraInicio || !HoraFin) {
     return res.status(400).json({ message: "Datos incompletos." });
@@ -560,6 +641,7 @@ app.post("/api/reservas", async (req, res) => {
 });
 
 app.patch("/api/reservas/:id", async (req, res) => {
+  /* === Aprobar/Rechazar reserva === */
   const estado = req.body?.Estado;
   if (!estado) {
     return res.status(400).json({ message: "Estado requerido." });
@@ -591,9 +673,14 @@ app.patch("/api/reservas/:id", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ========= Reclamos =========== */
+/* ============================= */
 const getResource = (name) => resources[name];
 
 app.post("/api/reclamos", async (req, res) => {
+  /* === Registrar reclamo === */
   const { IdResidente, Tipo, Asunto, Descripcion, FechaEstimada } =
     req.body || {};
   if (!IdResidente || !Tipo || !Asunto || !Descripcion) {
@@ -646,6 +733,7 @@ app.get("/api/reclamos/admin", async (req, res) => {
 });
 
 app.patch("/api/reclamos/:id", async (req, res) => {
+  /* === Responder reclamo === */
   const { Estado, Respuesta, FechaEstimada } = req.body || {};
   if (!Estado || !Respuesta) {
     return res.status(400).json({ message: "Estado y respuesta requeridos." });
@@ -673,6 +761,10 @@ app.patch("/api/reclamos/:id", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ======= Vivienda resumen ===== */
+/* ============================= */
 app.get("/api/viviendas/:id/resumen", async (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
@@ -705,6 +797,10 @@ app.get("/api/viviendas/:id/resumen", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ======= CRUD generico ======== */
+/* ============================= */
 app.get("/api/:resource", async (req, res) => {
   const resource = getResource(req.params.resource);
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
@@ -719,6 +815,7 @@ app.get("/api/:resource", async (req, res) => {
 });
 
 app.post("/api/:resource", async (req, res) => {
+  /* === Crear registro generico === */
   const resource = getResource(req.params.resource);
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
 
@@ -759,6 +856,7 @@ app.post("/api/:resource", async (req, res) => {
 });
 
 app.put("/api/:resource/:id", async (req, res) => {
+  /* === Actualizar registro generico === */
   const resource = getResource(req.params.resource);
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
 
@@ -787,6 +885,7 @@ app.put("/api/:resource/:id", async (req, res) => {
 });
 
 app.delete("/api/:resource/:id", async (req, res) => {
+  /* === Eliminar registro generico === */
   const resource = getResource(req.params.resource);
   if (!resource) return res.status(404).json({ message: "Recurso no valido." });
   try {
@@ -813,6 +912,10 @@ app.delete("/api/:resource/:id", async (req, res) => {
   }
 });
 
+
+/* ============================= */
+/* ======== Server start ======== */
+/* ============================= */
 app.listen(PORT, () => {
   console.log(`Servidor listo en http://localhost:${PORT}`);
 });
