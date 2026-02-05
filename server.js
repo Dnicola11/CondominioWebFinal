@@ -11,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
@@ -187,6 +188,7 @@ app.get("/api/soporte", async (req, res) => {
 });
 
 app.post("/api/login", async (req, res) => {
+  console.log(req.body)
   const { usuario, password } = req.body || {};
   if (!usuario || !password) {
     return res.status(400).json({ message: "Usuario y contrasena requeridos." });
