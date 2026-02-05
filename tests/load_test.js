@@ -14,8 +14,8 @@ export let options = {
 // Definir las solicitudes HTTP que se simularán
 export default function () {
   let res = http.post('http://localhost:3000/login.html', {
-    username: 'testuser',
-    password: 'testpassword',
+    username: 'admin',
+    password: 'admin123',
   });
 
   // Verificar que la respuesta sea exitosa (status 200)
